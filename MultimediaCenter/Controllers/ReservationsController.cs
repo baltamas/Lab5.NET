@@ -34,7 +34,7 @@ namespace MultimediaCenter.Controllers
             _userManager = userManager;
         }
         [HttpPost]
-        [HttpPost]
+        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
         public async Task<ActionResult> PlaceReservation(NewReservationRequest newReservationRequest)
         {
             var user = await _userManager.FindByNameAsync(User.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -82,6 +82,7 @@ namespace MultimediaCenter.Controllers
         }
 
         [HttpPut]
+        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
         public async Task<ActionResult> UpdateReservation(UpdateReservationForUser updateReservationRequest)
         {
             var user = await _userManager.FindByNameAsync(User.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -109,6 +110,7 @@ namespace MultimediaCenter.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
         public async Task<IActionResult> DeleteReservations(int id)
         {
             var user = await _userManager.FindByNameAsync(User.FindFirst(ClaimTypes.NameIdentifier).Value);

@@ -14,7 +14,7 @@ using MultimediaCenter.ViewModels;
 
 namespace MultimediaCenter.Controllers
 {
-    [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
+
     [Route("api/[controller]")]
     [ApiController]
     public class MoviesController : ControllerBase
@@ -100,6 +100,7 @@ namespace MultimediaCenter.Controllers
         /// <param name="id">ID of the movie</param>
         /// <param name="comment"></param>
         /// <returns>A comment</returns>
+        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
         [HttpPost("{id}/Comments")]
         public IActionResult PostCommentForMovie(int id, CommentViewModel comment)
         {
@@ -177,6 +178,8 @@ namespace MultimediaCenter.Controllers
         /// <returns>NoContent if movie was updated, BadRequest if the Id is not valid, or NotFound if movie was not found (based on Id)</returns>
         // PUT: api/Movies/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMovie(int id, MovieViewModel movie)
         {
@@ -214,6 +217,8 @@ namespace MultimediaCenter.Controllers
         /// <returns>If it was added, returns the movie, else BadRequest</returns>
         // POST: api/Movies
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
         [HttpPost]
         public async Task<ActionResult<Movie>> PostMovie(MovieViewModel movie)
         {
@@ -230,6 +235,8 @@ namespace MultimediaCenter.Controllers
         /// <param name="id">ID of the movie</param>
         /// <returns>If the movie was successfully removed returns NoContent, else NotFound</returns>
         // DELETE: api/Movies/5
+
+        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMovie(int id)
         {
@@ -251,7 +258,7 @@ namespace MultimediaCenter.Controllers
         /// <param name="commentId">The comment ID</param>
         /// <param name="comment">the comment</param>
         /// <returns>If comment updates: NoContent, BadRequest if the ID is not valid, or NotFound if comment was not found</returns>
-
+        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
         [HttpPut("{id}/Comments/{commentId}")]
         public async Task<IActionResult> PutComment(int commentId, CommentViewModel comment)
         {
@@ -286,6 +293,7 @@ namespace MultimediaCenter.Controllers
         /// </summary>
         /// <param name="commentId">ID of the comment</param>
         /// <returns>NoContent if the comment was deleted successfully, or NotFound</returns>
+        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
         [HttpDelete("{id}/Comments/{commentId}")]
         public async Task<IActionResult> DeleteComment(int commentId)
         {
