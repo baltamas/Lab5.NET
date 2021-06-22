@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\MultimediaCenter",
+    "\\Tests"
   ],
-  "SelectedNode": "\\MultimediaCenter.sln",
+  "SelectedNode": "\\MultimediaCenter\\MultimediaCenter.sln",
   "PreviewInSolutionExplorer": false
 }
