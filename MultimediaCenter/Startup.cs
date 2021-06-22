@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MultimediaCenter.Data;
 using MultimediaCenter.Models;
+using MultimediaCenter.Services;
 using MultimediaCenter.Validators;
 using MultimediaCenter.ViewModels;
 using System;
@@ -109,6 +110,7 @@ namespace MultimediaCenter
 
             services.AddTransient<IValidator<MovieViewModel>, MovieValidator>();
             services.AddTransient<IValidator<CommentViewModel>, CommentValidator>();
+            services.AddTransient<IAuthManagementService, AuthManagementService >();
 
         }
 

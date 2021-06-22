@@ -25,10 +25,10 @@ namespace tests
         [Test]
         public void loginAndAddMovie()
         {
-            _driver.Url = "http://localhost:4200/login";
+            _driver.Url = "http://localhost:4200";
 
 
-            //var goLogin = _driver.FindElement(By.XPath("));
+           
             var emailInput = _driver.FindElement(By.XPath("/html/body/app-root/ion-app/ion-router-outlet/app-login/ion-content/div/form/ion-item[1]/ion-input/input"));
             emailInput.SendKeys("test@test.com");
             System.Threading.Thread.Sleep(2000);
