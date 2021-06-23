@@ -111,6 +111,7 @@ namespace MultimediaCenter
             services.AddTransient<IValidator<MovieViewModel>, MovieValidator>();
             services.AddTransient<IValidator<CommentViewModel>, CommentValidator>();
             services.AddTransient<IAuthManagementService, AuthManagementService >();
+            services.AddTransient<IMoviesService, MovieService>();
 
         }
 

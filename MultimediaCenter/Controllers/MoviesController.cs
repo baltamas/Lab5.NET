@@ -2,321 +2,236 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using MultimediaCenter.Data;
 using MultimediaCenter.Models;
+using Microsoft.AspNetCore.Http;
+using AutoMapper;
 using MultimediaCenter.ViewModels;
+using MultimediaCenter.Services;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MultimediaCenter.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class MoviesController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly ILogger<MoviesController> _logger;
-        private readonly IMapper _mapper;
+        private readonly IMoviesService _moviesService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-
-        public MoviesController(ApplicationDbContext context, ILogger<MoviesController> logger, IMapper mapper)
+        public MoviesController(IMoviesService moviesService, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
-            _logger = logger;
-            _mapper = mapper; 
-        }
-        /// <summary>
-        /// Returns a movie with comments, based on the given movie ID
-        /// </summary>
-        /// <param name="id">The id of the movie</param>
-        /// <returns>A list of comments from a movie</returns>
-        [HttpGet("{id}/Comments")]
-        public ActionResult<IEnumerable<MovieWithCommentsViewModels>> GetCommentsForMovies (int id)
-        {
-            var query_v1 = _context.Comments.Where(c => c.Movie.Id == id).Include(c => c.Movie).Select(c => new MovieWithCommentsViewModels
-            {
-              Id = c.Movie.Id,
-              Title = c.Movie.Title,
-              Description = c.Movie.Description,
-              Genre = c.Movie.Genre,
-              Duration = c.Movie.Duration,
-              ReleaseYear = c.Movie.ReleaseYear,
-              Director = c.Movie.Director,
-              DateAdded = c.Movie.DateAdded,
-              Rating = c.Movie.Rating,
-              Watched = c.Movie.Watched,
-              Comments = c.Movie.Comments.Select(pc => new CommentViewModel 
-              {
-                  Id = pc.Id,
-                  Content = pc.Content,
-                  DateTime = pc.DateTime,
-                  Stars = pc.Stars
-
-})
-               
-            });
-
-            var query_v2 = _context.Movies.Where(m => m.Id == id).Include(m => m.Comments).Select(m => new MovieWithCommentsViewModels
-            {
-
-                Id = m.Id,
-                Title = m.Title,
-                Description = m.Description,
-                Genre = m.Genre,
-                Duration = m.Duration,
-                ReleaseYear = m.ReleaseYear,
-                Director = m.Director,
-                DateAdded = m.DateAdded,
-                Rating = m.Rating,
-                Watched = m.Watched,
-                Comments = m.Comments.Select(pc => new CommentViewModel
-                {
-                    Id = pc.Id,
-                    Content = pc.Content,
-                    DateTime = pc.DateTime,
-                    Stars = pc.Stars
-
-                })
-
-            });
-
-            var query_v3 = _context.Movies.Where(m => m.Id == id).Include(m => m.Comments).Select(m => _mapper.Map<MovieWithCommentsViewModels>(m)); 
-            var queryForCommentMovieId = _context.Comments;
-            _logger.LogInformation(queryForCommentMovieId.ToList()[0].MovieId.ToString());
-            //_logger.LogInformation(queryForCommentMovieId.ToList()[0].Movie.ToString);
-            _logger.LogInformation(query_v1.ToQueryString());
-            _logger.LogInformation(query_v2.ToQueryString());
-            _logger.LogInformation(query_v3.ToQueryString());
-            return query_v3.ToList();
-        }
-        /// <summary>
-        /// Posts a comment for a movie
-        /// </summary>
-        /// <param name="id">ID of the movie</param>
-        /// <param name="comment"></param>
-        /// <returns>A comment</returns>
-        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
-        [HttpPost("{id}/Comments")]
-        public IActionResult PostCommentForMovie(int id, CommentViewModel comment)
-        {
-
-            var movies = _context.Movies.Where(m => m.Id == id).Include(m => m.Comments).FirstOrDefault();
-            if(movies == null)
-            {
-                return NotFound();
-            }
-            movies.Comments.Add(_mapper.Map<Comment>(comment));
-            _context.Entry(movies).State = EntityState.Modified;
-            _context.SaveChanges();
-            
-       
-
-            return Ok();
-        }
-        /// <summary>
-        /// Returns a list of movies filtered by the date they're added to DB, and ordered desc. by their release year. 
-        /// </summary>
-        /// <param name="fromDate">The earliest value of movie's DateAdded may have</param>
-        /// <param name="toDate">The latest value of movie's DateAdded may have</param>
-        /// <returns>The list of the filtered and ordered movies</returns>
-        [HttpGet]
-        [Route("filter2")]
-        public async Task<ActionResult<IEnumerable<MovieViewModel>>> FilterByAddedDate (DateTime? fromDate, DateTime? toDate)
-        {
-
-            var filteredMovies = await _context.Movies
-                .Where(m => m.DateAdded >= fromDate && m.DateAdded <= toDate)
-                .OrderByDescending(m => m.ReleaseYear)
-                .Select(m => _mapper.Map<MovieViewModel>(m)).ToListAsync();
-
-            return Ok(filteredMovies);
+            _moviesService = moviesService;
+            _userManager = userManager;
         }
 
         /// <summary>
-        /// Returns a list of movies
+        /// Gets a list of Movies
         /// </summary>
-        /// <returns>All the movies</returns>
+        /// <response code="200">Gets a list of Movies</response>
+        [ProducesResponseType(StatusCodes.Status200OK)]
         // GET: api/Movies
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MovieViewModel>>> GetMovies()
         {
-            var movies = await _context.Movies.Select(m => _mapper.Map<MovieViewModel>(m)).ToListAsync();
-            return movies;
+            var moviesServiceResult = await _moviesService.GetMovies();
+
+            return Ok(moviesServiceResult.ResponseOk);
         }
 
         /// <summary>
-        /// Returns a movie with the given ID
+        /// Get a movie by id
         /// </summary>
-        /// <param name="id">ID of the movie</param>
-        /// <returns>Returns the movie or error: "Not Found" </returns>
+        /// <response code="200">Get a movie by id</response>
+        /// <response code="404">Movie not found</response>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         // GET: api/Movies/5
         [HttpGet("{id}")]
         public async Task<ActionResult<MovieViewModel>> GetMovie(int id)
         {
-            var movie = await _context.Movies.FindAsync(id);
-
-            if (movie == null)
+            var moviesServiceResult = await _moviesService.GetMovie(id);
+            if (moviesServiceResult.ResponseError != null)
             {
-                return NotFound();
+                return BadRequest(moviesServiceResult.ResponseError);
             }
 
-            var movieViewModel = _mapper.Map<MovieViewModel>(movie);
-
-            return movieViewModel;
+            return Ok(moviesServiceResult.ResponseOk);
         }
 
         /// <summary>
-        /// Updates a movie
+        /// Based on the given movied id, it returns a comment to the specified movie
         /// </summary>
-        /// <param name="id">ID of the movie</param>
-        /// <param name="movie">The movie</param>
-        /// <returns>NoContent if movie was updated, BadRequest if the Id is not valid, or NotFound if movie was not found (based on Id)</returns>
+        /// <param name="id">The id of the movie</param>
+        /// <returns>A list of comments for a movie</returns>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("{id}/Comments")]
+        public async Task<ActionResult<IEnumerable<MovieWithCommentsViewModels>>> GetCommentsForMovie(int id)
+        {
+            var moviesServiceResult = await _moviesService.GetCommentsForMovie(id);
+
+            return Ok(moviesServiceResult.ResponseOk);
+        }
+
+        /// <summary>
+        /// Filter movies by date added
+        /// </summary>
+        /// <response code="200">Filter movies by date added</response>
+        /// <response code="400">Unable to get the movie</response>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpGet]
+        [Route("filter")]
+        public async Task<ActionResult<IEnumerable<MovieViewModel>>> FilterMoviesByDateAdded(DateTime? fromDate, DateTime? toDate)
+        {
+            var moviesServiceResult = await _moviesService.FilterMoviesByDateAdded(fromDate, toDate);
+            if (moviesServiceResult.ResponseError != null)
+            {
+                return BadRequest(moviesServiceResult.ResponseError);
+            }
+
+            return Ok(moviesServiceResult.ResponseOk);
+        }
+
+        /// <summary>
+        /// Add a new movie
+        /// </summary>
+        /// <response code="201">Adds a new movie</response>
+        /// <response code="400">Unable to add the movie</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        // POST: api/Movies
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = "Identity.Application,Bearer")]
+        public async Task<ActionResult<MovieViewModel>> PostMovie([FromBody] MovieViewModel movieRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var user = await _userManager?.FindByNameAsync(User?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            }
+            catch (ArgumentNullException)
+            {
+                return Unauthorized("Please login!");
+            }
+
+            var moviesServiceResult = await _moviesService.PostMovie(movieRequest);
+            if (moviesServiceResult.ResponseError != null)
+            {
+                return BadRequest(moviesServiceResult.ResponseError);
+            }
+
+            var movie = moviesServiceResult.ResponseOk;
+
+            return CreatedAtAction("GetMovie", new { id = movie.Id }, "New movie successfully created");
+        }
+
+        /// <summary>
+        /// Add a new comment to movie
+        /// </summary>
+        /// <response code="201">Adds a new comment to a movie</response>
+        /// <response code="404">Movie not found</response>
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPost("{id}/Comments")]
+        [Authorize(AuthenticationSchemes = "Identity.Application,Bearer")]
+        public async Task<ActionResult> PostCommentForMovie(int movieId, CommentViewModel commentRequest)
+        {
+            try
+            {
+                var user = await _userManager?.FindByNameAsync(User?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            }
+            catch (ArgumentNullException)
+            {
+                return Unauthorized("Please login!");
+            }
+
+            var moviesServiceResult = await _moviesService.PostCommentForMovie(movieId, commentRequest);
+            if (moviesServiceResult.ResponseError != null)
+            {
+                return BadRequest(moviesServiceResult.ResponseError);
+            }
+
+            var movie = moviesServiceResult.ResponseOk;
+
+            return CreatedAtAction("GetMovieWithComments", new { id = movie.Id }, "New comment successfully added");
+        }
+
+        /// <summary>
+        /// Amend a movie
+        /// </summary>
+        /// <response code="204">Amend a movie</response>
+        /// <response code="400">Unable to amend the movie due to validation error</response>
+        /// <response code="404">Movie not found</response>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         // PUT: api/Movies/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-
-        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMovie(int id, MovieViewModel movie)
+        [Authorize(AuthenticationSchemes = "Identity.Application,Bearer")]
+        public async Task<IActionResult> PutMovie(int id, MovieViewModel movieRequest)
         {
-            if (id != movie.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(_mapper.Map<Movie>(movie)).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                var user = await _userManager?.FindByNameAsync(User?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (ArgumentNullException)
             {
-                if (!MovieExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return Unauthorized("Please login!");
+            }
+
+            var moviesServiceResult = await _moviesService.PutMovie(id, movieRequest);
+            if (moviesServiceResult.ResponseError != null)
+            {
+                return BadRequest(moviesServiceResult.ResponseError);
             }
 
             return NoContent();
         }
 
-
         /// <summary>
-        /// Adds a movie to DB
+        /// Delete a movie by id
         /// </summary>
-        /// <param name="movie">The movie</param>
-        /// <returns>If it was added, returns the movie, else BadRequest</returns>
-        // POST: api/Movies
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-
-        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
-        [HttpPost]
-        public async Task<ActionResult<Movie>> PostMovie(MovieViewModel movie)
-        {
-            _context.Movies.Add(_mapper.Map<Movie>(movie));
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetMovie", new { id = movie.Id }, movie);
-        }
-
-
-        /// <summary>
-        /// Deletes a movie based on ID
-        /// </summary>
-        /// <param name="id">ID of the movie</param>
-        /// <returns>If the movie was successfully removed returns NoContent, else NotFound</returns>
+        /// <response code="204">Delete a movie</response>
+        /// <response code="404">Movie not found</response>
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         // DELETE: api/Movies/5
-
-        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = "Identity.Application,Bearer")]
         public async Task<IActionResult> DeleteMovie(int id)
         {
-            var movie = await _context.Movies.FindAsync(id);
-            if (movie == null)
-            {
-                return NotFound();
-            }
-
-            _context.Movies.Remove(movie);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Updates a comment
-        /// </summary>
-        /// <param name="commentId">The comment ID</param>
-        /// <param name="comment">the comment</param>
-        /// <returns>If comment updates: NoContent, BadRequest if the ID is not valid, or NotFound if comment was not found</returns>
-        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
-        [HttpPut("{id}/Comments/{commentId}")]
-        public async Task<IActionResult> PutComment(int commentId, CommentViewModel comment)
-        {
-            if (commentId != comment.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(_mapper.Map<Comment>(comment)).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                var user = await _userManager?.FindByNameAsync(User?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (ArgumentNullException)
             {
-                if (!CommentExists(commentId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return Unauthorized("Please login!");
             }
 
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Deletes a comment
-        /// </summary>
-        /// <param name="commentId">ID of the comment</param>
-        /// <returns>NoContent if the comment was deleted successfully, or NotFound</returns>
-        [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
-        [HttpDelete("{id}/Comments/{commentId}")]
-        public async Task<IActionResult> DeleteComment(int commentId)
-        {
-            var comment = await _context.Comments.FindAsync(commentId);
-            if (comment == null)
+            if (!_moviesService.MovieExists(id))
             {
                 return NotFound();
             }
 
-            _context.Comments.Remove(comment);
-            await _context.SaveChangesAsync();
+            var moviesServiceResult = await _moviesService.DeleteMovie(id);
+
+            if (moviesServiceResult.ResponseError != null)
+            {
+                return BadRequest(moviesServiceResult.ResponseError);
+            }
 
             return NoContent();
-        }
-        private bool MovieExists(int id)
-        {
-            return _context.Movies.Any(e => e.Id == id);
-        }
-
-
-        private bool CommentExists(int id)
-        {
-            return _context.Comments.Any(c => c.Id == id);
         }
     }
 }

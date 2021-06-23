@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MultimediaCenter</name>
+    </assembly>
+    <members>
+        <member name="M:Lab1_.NET.Controllers.MoviesController.GetMovies">
+            <summary>
+            Get a list of movies
+            </summary>
+            <response code="200">Get a list of movies</response>
+        </member>
+        <member name="M:Lab1_.NET.Controllers.MoviesController.GetMovie(System.Int32)">
+            <summary>
+            Get a movie by id
+            </summary>
+            <response code="200">Get a movie by id</response>
+            <response code="404">Movie not found</response>
+        </member>
+        <member name="M:Lab1_.NET.Controllers.MoviesController.GetCommentsForMovie(System.Int32)">
+            <summary>
+            Get movie with comments
+            </summary>
+            <response code="200">Get movie with comments</response>
+        </member>
+        <member name="M:Lab1_.NET.Controllers.MoviesController.FilterMoviesByDateAdded(System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
+            <summary>
+            Filter movies by date added
+            </summary>
+            <response code="200">Filter movies by date added</response>
+            <response code="400">Unable to get the movie due to validation error</response>
+        </member>
+        <member name="M:Lab1_.NET.Controllers.MoviesController.PostMovie(MultimediaCenter.ViewModels.MovieViewModel)">
+            <summary>
+            Add a new movie
+            </summary>
+            <response code="201">Add a new movie</response>
+            <response code="400">Unable to create the movie due to validation error</response>
+        </member>
+        <member name="M:Lab1_.NET.Controllers.MoviesController.PostCommentForMovie(System.Int32,MultimediaCenter.ViewModels.CommentViewModel)">
+            <summary>
+            Add a new comment to movie
+            </summary>
+            <response code="201">Add a new comment to movie</response>
+            <response code="404">Movie not found</response>
+        </member>
+        <member name="M:Lab1_.NET.Controllers.MoviesController.PutMovie(System.Int32,MultimediaCenter.ViewModels.MovieViewModel)">
+            <summary>
+            Amend a movie
+            </summary>
+            <response code="204">Amend a movie</response>
+            <response code="400">Unable to amend the movie due to validation error</response>
+            <response code="404">Movie not found</response>
+        </member>
+        <member name="M:Lab1_.NET.Controllers.MoviesController.DeleteMovie(System.Int32)">
+            <summary>
+            Delete a movie by id
+            </summary>
+            <response code="204">Delete a movie</response>
+            <response code="404">Movie not found</response>
+        </member>
+    </members>
+</doc>

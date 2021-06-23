@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MultimediaCenter</name>
+    </assembly>
+    <members>
+        <member name="M:MultimediaCenter.Controllers.MoviesController.GetCommentsForMovies(System.Int32)">
+            <summary>
+            Returns a movie with comments, based on the given movie ID
+            </summary>
+            <param name="id">The id of the movie</param>
+            <returns>A list of comments from a movie</returns>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.MoviesController.PostCommentForMovie(System.Int32,MultimediaCenter.ViewModels.CommentViewModel)">
+            <summary>
+            Posts a comment for a movie
+            </summary>
+            <param name="id">ID of the movie</param>
+            <param name="comment"></param>
+            <returns>A comment</returns>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.MoviesController.FilterByAddedDate(System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
+            <summary>
+            Returns a list of movies filtered by the date they're added to DB, and ordered desc. by their release year. 
+            </summary>
+            <param name="fromDate">The earliest value of movie's DateAdded may have</param>
+            <param name="toDate">The latest value of movie's DateAdded may have</param>
+            <returns>The list of the filtered and ordered movies</returns>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.MoviesController.GetMovies">
+            <summary>
+            Returns a list of movies
+            </summary>
+            <returns>All the movies</returns>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.MoviesController.GetMovie(System.Int32)">
+            <summary>
+            Returns a movie with the given ID
+            </summary>
+            <param name="id">ID of the movie</param>
+            <returns>Returns the movie or error: "Not Found" </returns>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.MoviesController.PutMovie(System.Int32,MultimediaCenter.ViewModels.MovieViewModel)">
+            <summary>
+            Updates a movie
+            </summary>
+            <param name="id">ID of the movie</param>
+            <param name="movie">The movie</param>
+            <returns>NoContent if movie was updated, BadRequest if the Id is not valid, or NotFound if movie was not found (based on Id)</returns>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.MoviesController.PostMovie(MultimediaCenter.ViewModels.MovieViewModel)">
+            <summary>
+            Adds a movie to DB
+            </summary>
+            <param name="movie">The movie</param>
+            <returns>If it was added, returns the movie, else BadRequest</returns>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.MoviesController.DeleteMovie(System.Int32)">
+            <summary>
+            Deletes a movie based on ID
+            </summary>
+            <param name="id">ID of the movie</param>
+            <returns>If the movie was successfully removed returns NoContent, else NotFound</returns>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.MoviesController.PutComment(System.Int32,MultimediaCenter.ViewModels.CommentViewModel)">
+            <summary>
+            Updates a comment
+            </summary>
+            <param name="commentId">The comment ID</param>
+            <param name="comment">the comment</param>
+            <returns>If comment updates: NoContent, BadRequest if the ID is not valid, or NotFound if comment was not found</returns>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.MoviesController.DeleteComment(System.Int32)">
+            <summary>
+            Deletes a comment
+            </summary>
+            <param name="commentId">ID of the comment</param>
+            <returns>NoContent if the comment was deleted successfully, or NotFound</returns>
+        </member>
+    </members>
+</doc>
