@@ -16,6 +16,7 @@ using Microsoft.OpenApi.Models;
 using MultimediaCenter.Data;
 using MultimediaCenter.Models;
 using MultimediaCenter.Services;
+using MultimediaCenter.Services.Interfaces;
 using MultimediaCenter.Validators;
 using MultimediaCenter.ViewModels;
 using System;
@@ -112,6 +113,7 @@ namespace MultimediaCenter
             services.AddTransient<IValidator<CommentViewModel>, CommentValidator>();
             services.AddTransient<IAuthManagementService, AuthManagementService >();
             services.AddTransient<IMoviesService, MovieService>();
+            services.AddTransient<IReservationsService, ReservationsService>();
 
         }
 
