@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using MultimediaCenter.Data;
 using MultimediaCenter.Models;
 using MultimediaCenter.Services.Interfaces;
+using MultimediaCenter.ViewModels.Pagination;
 using MultimediaCenter.ViewModels.Reservations;
 using System;
 using System.Collections.Generic;
@@ -71,21 +72,17 @@ namespace MultimediaCenter.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
         [HttpGet]
-        public async Task<ActionResult> GetAll()
+        public async Task<ActionResult<PaginatedResultSet<Reservation>>> GetAll(int? page = 1, int? perPage = 20)
         {
-            var user = new ApplicationUser();
-            try
+            var user = await _userManager.FindByNameAsync(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+            if (user == null)
             {
-                user = await _userManager?.FindByNameAsync(User?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            }
-            catch (ArgumentNullException)
-            {
-                return Unauthorized("You have to login!");
+                return NotFound();
             }
 
-            var reservationServiceResult = await _reservationsService.GetAll(user);
-
-            return Ok(reservationServiceResult.ResponseOk);
+            var serviceResponse = await _reservationsService.GetAll(user.Id, page, perPage);
+            return serviceResponse.ResponseOk;
         }
 
         /// <summary>

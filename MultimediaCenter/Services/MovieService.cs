@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using MultimediaCenter.ErrorHandling;
 using MultimediaCenter.Models;
 using MultimediaCenter.Services;
+using MultimediaCenter.ViewModels.Pagination;
 
 namespace MultimediaCenter.Services
 {
@@ -23,12 +24,50 @@ namespace MultimediaCenter.Services
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<IEnumerable<MovieViewModel>, IEnumerable<EntityError>>> GetMovies()
+        public async Task<ServiceResponse<PaginatedResultSet<Movie>, IEnumerable<EntityError>>> GetMovies(int? page = 1, int? perPage = 20)
         {
-            var movies = await _context.Movies.Select(m => _mapper.Map<MovieViewModel>(m)).ToListAsync();
+            var movies = await _context.Movies
+                .Skip((page.Value - 1) * perPage.Value)
+                .Take(perPage.Value)
+                .ToListAsync();
 
-            var serviceResponse = new ServiceResponse<IEnumerable<MovieViewModel>, IEnumerable<EntityError>>();
-            serviceResponse.ResponseOk = movies;
+            var count = await getMoviesCount();
+
+            var resultSet = new PaginatedResultSet<Movie>(movies, page.Value, count, perPage.Value);
+
+            var serviceResponse = new ServiceResponse<PaginatedResultSet<Movie>, IEnumerable<EntityError>>();
+            serviceResponse.ResponseOk = resultSet;
+            return serviceResponse;
+        }
+
+        public async Task<int> getMoviesCount()
+        {
+            return await _context.Movies.CountAsync();
+        }
+
+        public async Task<int> getCommentsCount(int movieId)
+        {
+            return await _context.Comments.Where(c => c.MovieId == movieId).CountAsync();
+        }
+
+        public async Task<ServiceResponse<PaginatedResultSet<Movie>, IEnumerable<EntityError>>> FilterMoviesByDateAdded(string fromDate, string toDate, int? page = 1, int? perPage = 10)
+        {
+            var startDateDt = DateTime.Parse(fromDate);
+            var endDateDt = DateTime.Parse(toDate);
+
+            var movies = await _context.Movies
+                .Where(m => m.DateAdded >= startDateDt && m.DateAdded <= endDateDt)
+                .OrderByDescending(m => m.ReleaseYear)
+                .Skip((page.Value - 1) * perPage.Value)
+                .Take(perPage.Value)
+                .ToListAsync();
+
+            var count = await getMoviesCount();
+
+            var resultSet = new PaginatedResultSet<Movie>(movies, page.Value, count, perPage.Value);
+
+            var serviceResponse = new ServiceResponse<PaginatedResultSet<Movie>, IEnumerable<EntityError>>();
+            serviceResponse.ResponseOk = resultSet;
             return serviceResponse;
         }
 
@@ -50,17 +89,20 @@ namespace MultimediaCenter.Services
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<IEnumerable<MovieWithCommentsViewModels>, IEnumerable<EntityError>>> GetCommentsForMovie(int id)
+        public async Task<ServiceResponse<PaginatedResultSet<Comment>, IEnumerable<EntityError>>> GetCommentsForMovie(int id, int? page = 1, int? perPage = 10)
         {
-            var moviesWithComments = await _context.Movies
-                .Where(m => m.Id == id)
-                .Include(m => m.Comments)
-                .Select(m => _mapper.Map<MovieWithCommentsViewModels>(m))
+            var comments = await _context.Comments
+                .Where(c => c.MovieId == id)
+                .Skip((page.Value - 1) * perPage.Value)
+                .Take(perPage.Value)
                 .ToListAsync();
 
-            var serviceResponse = new ServiceResponse<IEnumerable<MovieWithCommentsViewModels>, IEnumerable<EntityError>>();
-            serviceResponse.ResponseOk = moviesWithComments;
+            var count = await _context.Comments.Where(c => c.MovieId == id).CountAsync();
 
+            var resultSet = new PaginatedResultSet<Comment>(comments, page.Value, count, perPage.Value);
+
+            var serviceResponse = new ServiceResponse<PaginatedResultSet<Comment>, IEnumerable<EntityError>>();
+            serviceResponse.ResponseOk = resultSet;
             return serviceResponse;
         }
 

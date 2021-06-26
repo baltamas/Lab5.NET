@@ -2,6 +2,7 @@
 using MultimediaCenter.Models;
 using MultimediaCenter.Services;
 using MultimediaCenter.ViewModels;
+using MultimediaCenter.ViewModels.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,13 +11,13 @@ namespace MultimediaCenter.Services
 {
     public interface IMoviesService
     {
-        Task<ServiceResponse<IEnumerable<MovieViewModel>, IEnumerable<EntityError>>> GetMovies();
+        public Task<ServiceResponse<PaginatedResultSet<Movie>, IEnumerable<EntityError>>> GetMovies(int? page = 1, int? perPage = 20);
 
         Task<ServiceResponse<MovieViewModel, string>> GetMovie(int id);
 
-        Task<ServiceResponse<IEnumerable<MovieWithCommentsViewModels>, IEnumerable<EntityError>>> GetCommentsForMovie(int id);
+        public Task<ServiceResponse<PaginatedResultSet<Comment>, IEnumerable<EntityError>>> GetCommentsForMovie(int id, int? page = 1, int? perPage = 20);
 
-        Task<ServiceResponse<IEnumerable<MovieViewModel>, IEnumerable<EntityError>>> FilterMoviesByDateAdded(DateTime? fromDate, DateTime? toDate);
+        public Task<ServiceResponse<PaginatedResultSet<Movie>, IEnumerable<EntityError>>> FilterMoviesByDateAdded(string fromDate, string toDate, int? page = 1, int? perPage = 10);
 
         Task<ServiceResponse<Movie, IEnumerable<EntityError>>> PostMovie(MovieViewModel movieRequest);
 

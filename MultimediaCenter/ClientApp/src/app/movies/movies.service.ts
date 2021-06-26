@@ -1,20 +1,24 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Movie } from './movie.model';
+import { PaginatedMovies } from './PaginatedMovieModel';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MoviesService {
 
-  apiUrl: string;
+  private apiUrl: string;
 
   constructor(private httpClient: HttpClient, @Inject('API_URL') apiUrl: string) {
     this.apiUrl = apiUrl;
   }
-  getMovies(): Observable<Movie[]> {
-    return this.httpClient.get<Movie[]>(this.apiUrl + 'movies');
+
+  getMovies(page: number): Observable<PaginatedMovies> {
+    return this.httpClient.get<PaginatedMovies>(this.apiUrl + 'movies', { params: { 'page': page } });
+
   }
-    
+
 }
+
+

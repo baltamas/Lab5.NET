@@ -265,3 +265,4 @@ D:\Facultate\Semestrul IV\.NET\Lab5\UnitTests\bin\Debug\net5.0\MySql.Data.dll
 D:\Facultate\Semestrul IV\.NET\Lab5\UnitTests\bin\Debug\net5.0\Ubiety.Dns.Core.dll
 D:\Facultate\Semestrul IV\.NET\Lab5\UnitTests\bin\Debug\net5.0\Zstandard.Net.dll
 D:\Facultate\Semestrul IV\.NET\Lab5\UnitTests\bin\Debug\net5.0\MySql.EntityFrameworkCore.dll
+D:\Facultate\Semestrul IV\.NET\Lab5\UnitTests\bin\Debug\net5.0\MultimediaCenter.StaticWebAssets.xml

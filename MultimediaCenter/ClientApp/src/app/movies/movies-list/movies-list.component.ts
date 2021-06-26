@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Movie } from '../movie.model';
+import { Movie, PaginatedMovies } from '../movie.model';
 import { MoviesService } from '../movies.service';
 
 @Component({
@@ -10,14 +10,17 @@ import { MoviesService } from '../movies.service';
 })
 export class MoviesListComponent{
 
-  public movies: Movie[];
+  public movies: PaginatedMovies;
+  currentPage: number;
 
   constructor(private moviesService: MoviesService) {
-   
+
   }
 
-  getMovies() {
-    this.moviesService.getMovies().subscribe(m => this.movies = m)
+
+  getMovies(page: number = 1) {
+    this.currentPage = page;
+    this.moviesService.getMovies(page).subscribe(m => this.movies = m);
   }
 
   ngOnInit() {

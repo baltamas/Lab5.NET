@@ -4,47 +4,48 @@
         <name>MultimediaCenter</name>
     </assembly>
     <members>
-        <member name="M:Lab1_.NET.Controllers.MoviesController.GetMovies">
+        <member name="M:MultimediaCenter.Controllers.MoviesController.GetMovies">
             <summary>
-            Get a list of movies
+            Gets a list of Movies
             </summary>
-            <response code="200">Get a list of movies</response>
+            <response code="200">Gets a list of Movies</response>
         </member>
-        <member name="M:Lab1_.NET.Controllers.MoviesController.GetMovie(System.Int32)">
+        <member name="M:MultimediaCenter.Controllers.MoviesController.GetMovie(System.Int32)">
             <summary>
             Get a movie by id
             </summary>
             <response code="200">Get a movie by id</response>
             <response code="404">Movie not found</response>
         </member>
-        <member name="M:Lab1_.NET.Controllers.MoviesController.GetCommentsForMovie(System.Int32)">
+        <member name="M:MultimediaCenter.Controllers.MoviesController.GetCommentsForMovie(System.Int32)">
             <summary>
-            Get movie with comments
+            Based on the given movied id, it returns a comment to the specified movie
             </summary>
-            <response code="200">Get movie with comments</response>
+            <param name="id">The id of the movie</param>
+            <returns>A list of comments for a movie</returns>
         </member>
-        <member name="M:Lab1_.NET.Controllers.MoviesController.FilterMoviesByDateAdded(System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
+        <member name="M:MultimediaCenter.Controllers.MoviesController.FilterMoviesByDateAdded(System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
             <summary>
             Filter movies by date added
             </summary>
             <response code="200">Filter movies by date added</response>
-            <response code="400">Unable to get the movie due to validation error</response>
+            <response code="400">Unable to get the movie</response>
         </member>
-        <member name="M:Lab1_.NET.Controllers.MoviesController.PostMovie(MultimediaCenter.ViewModels.MovieViewModel)">
+        <member name="M:MultimediaCenter.Controllers.MoviesController.PostMovie(MultimediaCenter.ViewModels.MovieViewModel)">
             <summary>
             Add a new movie
             </summary>
-            <response code="201">Add a new movie</response>
-            <response code="400">Unable to create the movie due to validation error</response>
+            <response code="201">Adds a new movie</response>
+            <response code="400">Unable to add the movie</response>
         </member>
-        <member name="M:Lab1_.NET.Controllers.MoviesController.PostCommentForMovie(System.Int32,MultimediaCenter.ViewModels.CommentViewModel)">
+        <member name="M:MultimediaCenter.Controllers.MoviesController.PostCommentForMovie(System.Int32,MultimediaCenter.ViewModels.CommentViewModel)">
             <summary>
             Add a new comment to movie
             </summary>
-            <response code="201">Add a new comment to movie</response>
+            <response code="201">Adds a new comment to a movie</response>
             <response code="404">Movie not found</response>
         </member>
-        <member name="M:Lab1_.NET.Controllers.MoviesController.PutMovie(System.Int32,MultimediaCenter.ViewModels.MovieViewModel)">
+        <member name="M:MultimediaCenter.Controllers.MoviesController.PutMovie(System.Int32,MultimediaCenter.ViewModels.MovieViewModel)">
             <summary>
             Amend a movie
             </summary>
@@ -52,12 +53,40 @@
             <response code="400">Unable to amend the movie due to validation error</response>
             <response code="404">Movie not found</response>
         </member>
-        <member name="M:Lab1_.NET.Controllers.MoviesController.DeleteMovie(System.Int32)">
+        <member name="M:MultimediaCenter.Controllers.MoviesController.DeleteMovie(System.Int32)">
             <summary>
             Delete a movie by id
             </summary>
             <response code="204">Delete a movie</response>
             <response code="404">Movie not found</response>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.ReservationsController.PlaceReservation(MultimediaCenter.ViewModels.Reservations.NewReservationRequest)">
+            <summary>
+            Adds a new reservation
+            </summary>
+            <response code="201">Adds a new reservation</response>
+            <response code="400">Unable to add the reservation</response>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.ReservationsController.GetAll">
+            <summary>
+            Get all reservations
+            </summary>
+            <response code="200">Get All Reservations</response>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.ReservationsController.UpdateReservation(System.Int32,MultimediaCenter.ViewModels.Reservations.NewReservationRequest)">
+            <summary>
+            Edit a reservation
+            </summary>
+            <response code="204">Update a reservation</response>
+            <response code="400">Unable to update the reservation</response>
+            <response code="404">Reservation not found</response>
+        </member>
+        <member name="M:MultimediaCenter.Controllers.ReservationsController.DeleteReservation(System.Int32)">
+            <summary>
+            Delete a reservation by the given id
+            </summary>
+            <response code="204">Deletes a reservation</response>
+            <response code="404">Reservation not found</response>
         </member>
     </members>
 </doc>

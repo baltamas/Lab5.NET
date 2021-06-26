@@ -5,7 +5,7 @@ using OpenQA.Selenium.Chrome;
 
 namespace tests
 {
-    public class EndToEndTests
+    public class EndToEndTestIonicApp
     {
         private IWebDriver _driver;
 
@@ -31,10 +31,10 @@ namespace tests
            
             var emailInput = _driver.FindElement(By.XPath("/html/body/app-root/ion-app/ion-router-outlet/app-login/ion-content/div/form/ion-item[1]/ion-input/input"));
             emailInput.SendKeys("test@test.com");
-            System.Threading.Thread.Sleep(2000);
+            System.Threading.Thread.Sleep(1000);
 
             var password = _driver.FindElement(By.XPath("/html/body/app-root/ion-app/ion-router-outlet/app-login/ion-content/div/form/ion-item[2]/ion-input/input"));
-            System.Threading.Thread.Sleep(2000);
+            System.Threading.Thread.Sleep(1000);
             password.SendKeys("Tamaska123(#");
 
             var loginBtn = _driver.FindElement(By.XPath("/html/body/app-root/ion-app/ion-router-outlet/app-login/ion-content/div/form/ion-button"));

@@ -13,6 +13,7 @@ using MultimediaCenter.Services;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using MultimediaCenter.ViewModels.Pagination;
 
 namespace MultimediaCenter.Controllers
 {
@@ -86,15 +87,10 @@ namespace MultimediaCenter.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet]
         [Route("filter")]
-        public async Task<ActionResult<IEnumerable<MovieViewModel>>> FilterMoviesByDateAdded(DateTime? fromDate, DateTime? toDate)
+        public async Task<ActionResult<PaginatedResultSet<Movie>>> FilterMoviesByDateAdded(string fromDate, string toDate, int? page = 1, int? perPage = 20)
         {
-            var moviesServiceResult = await _moviesService.FilterMoviesByDateAdded(fromDate, toDate);
-            if (moviesServiceResult.ResponseError != null)
-            {
-                return BadRequest(moviesServiceResult.ResponseError);
-            }
-
-            return Ok(moviesServiceResult.ResponseOk);
+            var result = await _moviesService.FilterMoviesByDateAdded(fromDate, toDate, page, perPage);
+            return result.ResponseOk;
         }
 
         /// <summary>

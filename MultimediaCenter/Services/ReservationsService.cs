@@ -5,6 +5,7 @@ using MultimediaCenter.Data;
 using MultimediaCenter.ErrorHandling;
 using MultimediaCenter.Models;
 using MultimediaCenter.Services.Interfaces;
+using MultimediaCenter.ViewModels.Pagination;
 using MultimediaCenter.ViewModels.Reservations;
 using System;
 using System.Collections.Generic;
@@ -26,17 +27,20 @@ namespace MultimediaCenter.Services
             _userManager = userManager;
         }
 
-        public async Task<ServiceResponse<ReservationForUserResponse, IEnumerable<EntityError>>> GetAll(ApplicationUser user)
+        public async Task<ServiceResponse<PaginatedResultSet<Reservation>, IEnumerable<EntityError>>> GetAll(string userId, int? page = 1, int? perPage = 10)
         {
-            var reservationsFromDb = await _context.Reservations
-                .Where(o => o.ApplicationUser.Id == user.Id)
-                .Include(o => o.Movies)
-                .FirstOrDefaultAsync();
+            var reservations = await _context.Reservations
+                .Where(r => r.ApplicationUser.Id == userId)
+                .Include(r => r.Movies)
+                .OrderByDescending(r => r.Price)
+                .ToListAsync();
 
-            var reservationsForUserResponse = _mapper.Map<ReservationForUserResponse>(reservationsFromDb);
+            var count = await _context.Reservations.Where(r => r.ApplicationUser.Id == userId).CountAsync();
 
-            var serviceResponse = new ServiceResponse<ReservationForUserResponse, IEnumerable<EntityError>>();
-            serviceResponse.ResponseOk = reservationsForUserResponse;
+            var resultSet = new PaginatedResultSet<Reservation>(reservations, page.Value, count, perPage.Value);
+
+            var serviceResponse = new ServiceResponse<PaginatedResultSet<Reservation>, IEnumerable<EntityError>>();
+            serviceResponse.ResponseOk = resultSet;
 
             return serviceResponse;
         }
